@@ -12,27 +12,19 @@ class TreeNode{
         }
 };
 TreeNode *root;
-TreeNode *find(TreeNode *root,int x)
-{
-    if(x<root->val&&root->left)
-        return find(root->left,x);
-    else if(x>root->val&&root->right)
-        return find(root->right,x);
-    return root;
-}
 
-void insert(int x)
+TreeNode* buildTree(vector <int> v,int l,int h)
 {
-    if(!root)
-        root=new TreeNode(x);
-    else
+    if(l==h)
     {
-        auto p = find(root,x);
-        if(p->val<x)
-            p->right=new TreeNode(x);
-        else
-            p->left=new TreeNode(x);
+        return new TreeNode(v[l]);
     }
+    int mid = (l+h)/2;
+    TreeNode* root=new TreeNode(v[mid]);
+    root->left=buildTree(v,l,mid-1);
+    root->right=buildTree(v,mid+1,h);
+
+    return root;
 }
 
 void printBFS(TreeNode *root)
@@ -62,25 +54,54 @@ void printBFS(TreeNode *root)
         cout<<endl;
     }
 }
-
-vector <TreeNode *> splitBST(TreeNode *root,int value)
+TreeNode * clone(TreeNode *root)
 {
-    vector <TreeNode*> ans={NULL,NULL};
     if(!root)
+        return NULL;
+    TreeNode *temp=new TreeNode(root->val);
+    temp->left=clone(root->left);
+    temp->right=clone(root->right);
+    return temp;
+}
+vector <TreeNode *> splitBST(TreeNode *r,int value)
+{
+    auto new_root=clone(r);
+   // printBFS(new_root);
+    vector <TreeNode*> ans={NULL,NULL};
+    if(!new_root)
         return ans;
-    if(root->val<=value)
+    if(new_root->val<=value)
     {
-        ans=splitBST(root->right, value);
-        root->right=ans[0];
-        ans[0]=root;
+        ans=splitBST(new_root->right, value);
+        new_root->right=ans[0];
+        ans[0]=new_root;
     }
     else
     {
-        ans=splitBST(root->left, value);
-        root->left=ans[1];
-        ans[1]=root;
+        ans=splitBST(new_root->left, value);
+        new_root->left=ans[1];
+        ans[1]=new_root;
     }
     return ans;
+}
+
+TreeNode *pred(TreeNode *root)
+{
+    root=root->left;
+    while(root->right)
+    {
+        root=root->right;
+    }
+    return root;
+}
+
+vector <TreeNode*> splitBSTRoot(TreeNode *r)
+{
+    TreeNode* new_root=clone(r);
+    //printBFS(new_root);
+    auto p=pred(new_root);
+    p->right=new TreeNode(new_root->val);
+    return {new_root->left,new_root->right};
 }
 
 int main() {
@@ -92,6 +113,7 @@ int main() {
     int choice;
     int file=1;
     vector <TreeNode*> ans;
+    vector <int> v;
     do
     {
         if(file)
@@ -117,8 +139,11 @@ int main() {
                     {
                         int p;
                         input>>p;
-                        insert(p);
+                        v.push_back(p);
+                        
                     }
+                    sort(v.begin(),v.end());
+                    root=buildTree(v,0,n-1);
                 }
                 else{
                     cout<<"Enter no of elements : ";
@@ -127,18 +152,21 @@ int main() {
                     for(int i=0;i<n;i++)
                     {
                         int p;
-                        cin>>p;
-                        insert(p);
+                        input>>p;
+                        v.push_back(p);
+                        
                     }
+                    sort(v.begin(),v.end());
+                    root=buildTree(v,0,n-1);
                 }
                 
                 break;
             case 2 :
-                ans=splitBST(root,root->val);
-                cout<<"Displaying Subtrees : "<<endl;
-                cout<<"Left Subtree : "<<endl;
+                ans=splitBSTRoot(root);
+                cout<<"\nSplit at Root"<<endl;
+                cout<<"Left Subtree"<<endl;
                 printBFS(ans[0]);
-                cout<<"Right Subtree : "<<endl;
+                cout<<"Right Subtree"<<endl;
                 printBFS(ans[1]);
                 break;
             case 3 :
@@ -152,10 +180,10 @@ int main() {
                     cin>>val;
                 }
                 auto ans=splitBST(root,val);
-                cout<<"Displaying Subtrees : "<<endl;
-                cout<<"Left Subtree : "<<endl;
+                cout<<"\nSplit point "<<val<<endl;
+                cout<<"Left Subtree"<<endl;
                 printBFS(ans[0]);
-                cout<<"Right Subtree : "<<endl;
+                cout<<"Right Subtree"<<endl;
                 printBFS(ans[1]);
                 break;   
             }
