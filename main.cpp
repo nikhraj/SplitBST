@@ -48,11 +48,16 @@ void printBFS(TreeNode *root)
         {
             auto p=q.front();
             q.pop();
-            if(p->left)
+            if(p)
+            {
+                cout<<p->val<<" ";
                 q.push(p->left);
-            if(p->right)
                 q.push(p->right);
-            cout<<p->val<<" ";
+            }
+            else
+            {
+                cout<<"N ";
+            }    
         }
         cout<<endl;
     }
@@ -65,17 +70,102 @@ vector <TreeNode *> splitBST(TreeNode *root,int value)
         return ans;
     if(root->val<=value)
     {
-
+        ans=splitBST(root->right, value);
+        root->right=ans[0];
+        ans[0]=root;
     }
     else
     {
-
+        ans=splitBST(root->left, value);
+        root->left=ans[1];
+        ans[1]=root;
     }
     return ans;
 }
 
 int main() {
     root=NULL;
-    
+    ifstream input;
+    input.open("data2.txt");
+    int n;
+    int val;
+    int choice;
+    int file=1;
+    vector <TreeNode*> ans;
+    do
+    {
+        if(file)
+            input>>choice;
+        else
+        {
+            cout<<"\nOperations\n";
+            cout<<"1. Build Tree"<<endl;
+            cout<<"2. Split from root"<<endl;
+            cout<<"3. Split from given value"<<endl;
+            cout<<"4. Display BST"<<endl;
+            cout<<"5. End"<<endl;
+            cout<<"Enter your Choice: ";
+            cin>>choice;
+        }
+        switch (choice)
+        {
+            case 1 :
+                if(file)
+                {
+                    input>>n;
+                    for(int i=0;i<n;i++)
+                    {
+                        int p;
+                        input>>p;
+                        insert(p);
+                    }
+                }
+                else{
+                    cout<<"Enter no of elements : ";
+                    cin>>n;
+                    cout<<"Eneter elements : ";
+                    for(int i=0;i<n;i++)
+                    {
+                        int p;
+                        cin>>p;
+                        insert(p);
+                    }
+                }
+                
+                break;
+            case 2 :
+                ans=splitBST(root,root->val);
+                cout<<"Displaying Subtrees : "<<endl;
+                cout<<"Left Subtree : "<<endl;
+                printBFS(ans[0]);
+                cout<<"Right Subtree : "<<endl;
+                printBFS(ans[1]);
+                break;
+            case 3 :
+            {
+                if(file)
+                {
+                    input>>val;
+                }
+                else{
+                    cout<<"Enter value : ";
+                    cin>>val;
+                }
+                auto ans=splitBST(root,val);
+                cout<<"Displaying Subtrees : "<<endl;
+                cout<<"Left Subtree : "<<endl;
+                printBFS(ans[0]);
+                cout<<"Right Subtree : "<<endl;
+                printBFS(ans[1]);
+                break;   
+            }
+            case 4 :
+                printBFS(root);
+                break;
+            case 5:
+                break;
+        }
+    } while (choice!=5);
+    input.close();
     return 0;
 }
